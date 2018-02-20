@@ -367,7 +367,7 @@ static char DZNWebViewControllerKVOContext = 0;
         return;
     }
     
-    NSString *url = self.webView.URL.absoluteString;
+    NSString *url = self.webView.URL.absoluteString ? : @"";
     
     UILabel *label = (UILabel *)self.navigationItem.titleView;
     
@@ -379,9 +379,9 @@ static char DZNWebViewControllerKVOContext = 0;
         self.navigationItem.titleView = label;
     }
     
-    UIFont *titleFont = self.navigationBar.titleTextAttributes[NSFontAttributeName] ? : [UIFont boldSystemFontOfSize:14.0];
+    UIFont *titleFont = self.navigationBar.titleTextAttributes[NSFontAttributeName] ? : [UIFont boldSystemFontOfSize:17.0];
     UIFont *urlFont = [UIFont fontWithName:titleFont.fontName size:titleFont.pointSize-2.0];
-    UIColor *textColor = self.navigationBar.titleTextAttributes[NSForegroundColorAttributeName] ? : [UIColor blackColor];
+    UIColor *textColor = self.navigationBar.titleTextAttributes[NSForegroundColorAttributeName] ? : [UIColor whiteColor];
     
     NSMutableString *text = [NSMutableString new];
     
@@ -817,12 +817,6 @@ static char DZNWebViewControllerKVOContext = 0;
             }
         }
         
-        if ([keyPath isEqualToString:@"hidden"] && ![new boolValue]) {
-            if (self.navigationBar.superview) {
-                [self changeAlphaNavigationBar:1.0];
-            }
-        }
-        
         if ([keyPath isEqualToString:@"center"]) {
             
             CGPoint center = [new CGPointValue];
@@ -830,9 +824,14 @@ static char DZNWebViewControllerKVOContext = 0;
             if (center.y < -2.0) {
                 center.y = -2.0;
                 self.navigationBar.center = center;
+            }
+            
+            if (self.navigationBar.superview) {
+                CGRect frame = self.navigationBar.frame;
+                BOOL navBarVisibled = frame.origin.y >= 0;
                 
                 [UIView beginAnimations:@"DZNNavigationBarAnimation" context:nil];
-                [self changeAlphaNavigationBar:0.0];
+                [self changeAlphaNavigationBar:navBarVisibled ? 1.0 : 0.0];
                 [UIView commitAnimations];
             }
         }
