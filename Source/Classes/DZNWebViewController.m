@@ -817,6 +817,12 @@ static char DZNWebViewControllerKVOContext = 0;
             }
         }
         
+        if ([keyPath isEqualToString:@"hidden"] && ![new boolValue]) {
+            if (self.navigationBar.superview) {
+                [self changeAlphaNavigationBar:1.0];
+            }
+        }
+        
         if ([keyPath isEqualToString:@"center"]) {
             
             CGPoint center = [new CGPointValue];
@@ -826,13 +832,7 @@ static char DZNWebViewControllerKVOContext = 0;
                 self.navigationBar.center = center;
                 
                 [UIView beginAnimations:@"DZNNavigationBarAnimation" context:nil];
-                
-                for (UIView *subview in self.navigationBar.subviews) {
-                    if (subview != self.navigationBar.subviews[0]) {
-                        subview.alpha = 0.0;
-                    }
-                }
-                
+                [self changeAlphaNavigationBar:0.0];
                 [UIView commitAnimations];
             }
         }
@@ -843,6 +843,24 @@ static char DZNWebViewControllerKVOContext = 0;
     }
 }
 
+
+- (void)changeAlphaNavigationBar:(CGFloat) alpha {
+    for (UIView *subview in self.navigationBar.subviews) {
+        if (subview != self.navigationBar.subviews[0]) {
+            if(subview.alpha != alpha) {
+                subview.alpha = alpha;
+            }
+            
+            if(![subview isKindOfClass:[UIProgressView class]]) {
+                for (UIView *subview2 in subview.subviews) {
+                    if(subview2.alpha != alpha) {
+                        subview2.alpha = alpha;
+                    }
+                }
+            }
+        }
+    }
+}
 
 #pragma mark - View Auto-Rotation
 
